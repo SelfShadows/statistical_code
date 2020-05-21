@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            height: 100px;
+            width: 100px;
+            background-color: red;
+        }
+        .box2{
+            background-color: green;
+        }
+        .lun_bo{
+            overflow: hidden;
+            width: 200px;
+            list-style: none;
+        }
+        .lun_bo li{
+            height: 30px;
+            width: 38px;
+            background-color: indianred;
+            float:left;
+            text-align: center;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app01">
+        <h1>{{ msg }}</h1>
+        <h1>{{ 1>2? "真":"假" }}</h1>
+
+        <div v-if= "show">哈哈</div>
+        <!-- v-show 只改变css属性不会销毁 而v-if返回false会直接销毁 -->
+        <div v-show= "is_show" v-bind:title="title">导航栏就用v-show</div>
+        <!-- v-on:click 绑定点击事件 -->
+        <p v-on:click="clickHandler" class="form">切换</p>  
+        <img v-bind:src="img_src" :title="time">
+        <p class="box" v-bind:class="{box2:is_green}"></p>
+        <p><button @click="clickColor">切换颜色</button>
+        <button @click="count+=1">加{{count}}</button></p>
+        
+        <img :src="imgSrc" @mouseenter='closeTimer' @mouseleave='openTimer'>
+        
+        <ul class="lun_bo">
+            <li @click="showImg(item)" v-for="(item,i) in imgCount">{{i+1}}</li>
+        </ul>
+        <p>
+            <button @click="backImg">上一张</button>
+            <button @click="nextImg">下一张</button>
+        </p>
+        <div v-html="html_str"></div>  <!-- 插入标签字符串 -->
+
+        <div @click="changeMsg">{{reverseStr}}</div>
+        <input type="text" v-model='msg'>
+        <h1>{{msg}}</h1>
+
+    </div>
+
+    <script src="./vue.js"></script>
+    <script>
+        // Django 的操作模型: MTV  Model, Template, View
+        // VUE 的操作模型: MVVM  Model, View, ViewModel
+        // 核心思想: 数据驱动视图
+        // 指令系统 v-*
+        // v-if, v-show, v-bind:src(绑定标签属性), v-on:(绑定事件)
+        // v-bind 简便写法 :src
+        // v-on   简便写法 @click
+        // @mouseenter 鼠标移进去的事件
+        // @mouseleave 鼠标移出的事件
+        // v-html(插入标签字符串)  是一个双向数据绑定 = 单向数据绑定+UI事件监听
+        
+        var app01 = new Vue({  // vue 的实例化对象
+            el:"#app01",
+            data:{  //数据
+                msg:"hello world",
+                show:false,
+                is_show:true,
+                title:"hello",
+                img_src:"2.jpg",
+                time:`页面加载于${new Date().toLocaleString()}`,
+                is_green:false,
+                count: 0,
+                imgCount:[
+                    "./img/1.jpg",
+                    "./img/2.jpg",
+                    "./img/3.jpg",
+                    "./img/4.jpg",
+                ],
+                imgSrc:"./img/1.jpg",
+                currentIndex:0,
+                timer:undefined,
+                html_str:"<p>我是一个p标签</p>"
+            },
+            computed:{  //计算数据属性，  watch监听
+                reverseStr(){
+                    return this.msg.split('').reverse().join('');
+                }
+            },
+            created(){  // 生命周期方法(加载页面就执行的方法)
+                this.timer = setInterval(this.nextImg,2000)  // 每过2秒执行nextImg方法
+            },
+            methods:{  // 所有方法
+                clickHandler(){
+                    // !this.show 取反
+                    this.show = !this.show
+                    this.is_show = !this.is_show
+                },
+                clickColor(){
+                    this.is_green = !this.is_green
+                },
+                showImg(item){
+                    this.imgSrc=item
+                },
+                backImg(){
+                    this.currentIndex--
+                    if(this.currentIndex<0){
+                        this.currentIndex=this.imgCount.length-1
+                    }
+                    console.log(this.currentIndex)
+                    this.imgSrc=this.imgCount[this.currentIndex]
+                },
+                nextImg(){
+                    if(this.currentIndex==this.imgCount.length-1){
+                        this.currentIndex=-1
+                    }
+                    this.currentIndex++
+                    this.imgSrc=this.imgCount[this.currentIndex]
+                },
+                closeTimer(){
+                    console.log(this.timer)
+                    clearInterval(this.timer)
+                },
+                openTimer(){
+                    this.timer = setInterval(this.nextImg,2000)
+                },
+                changeMsg(){
+                    this.msg="计算属性"
+                }
+            }
+        })
+
+        console.log(app01)
+        console.log(app01.$data.msg)
+
+    </script>
+
+
+</body>
+</html>
